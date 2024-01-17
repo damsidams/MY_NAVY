@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "my.h"
 
-static int check_condition(char const *str, int i, char const **separators)
+static int check_condition(char const *str, int i, char **separators)
 {
     for (int j = 0; separators[j] != NULL; j++) {
         if (str[i] == separators[j][0])
@@ -30,7 +30,7 @@ static void add_word(char const *str, char *result, int start, int end)
 }
 
 static void all_funk
-(int *word_nb, char ***result, char const *str, char const **separators)
+(int *word_nb, char ***result, char const *str, char **separators)
 {
     int word_lenght = 0;
 
