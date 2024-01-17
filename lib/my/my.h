@@ -86,4 +86,5 @@ int my_get_nbr_size(float i);
 char *int_to_str(int nb);
 char **my_str_to_custom_array(char const *str, char **separators);
 int array_size(char **array);
+int int_lenght(int i);
 #endif /* MY_H */

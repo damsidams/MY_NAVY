@@ -8,6 +8,8 @@
 #include "my.h"
 #include "func.h"
 
+signals_t *my_signals;
+
 static void print_h(void)
 {
     my_printf("USAGE\n    ./navy [first_player_pid] navy_positions\n");
@@ -26,6 +28,17 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc == 2) {
-        return load_file(argv[1]);
+        if (load_file(argv[1]) != 0)
+            return 84;
+        struct_init();
+        print_pid();
+        return 0;
     }
+    if (argc == 3) {
+        if (load_file(argv[2]) != 0)
+            return 84;
+        struct_init();
+        return send_pid(my_getnbr(argv[1]));
+    }
+    return 84;
 }

@@ -62,6 +62,7 @@ SRC	=	my_is_prime.c	\
 		int_to_str.c \
 		my_str_to_custom_array.c	\
 		array_size.c	\
+		int_lenght.c	\
 
 
 OBJ	=	$(SRC:.c=.o)

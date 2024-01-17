@@ -57,7 +57,7 @@ char **my_str_to_custom_array(char const *str, char **separators)
     int word_nb = 0;
     char **result = malloc(sizeof(char *) * (my_strlen(str) + 1));
 
-    if (str[0] == '\0'){
+    if (str[0] == '\0') {
         result[0] = 0;
         return result;
     }

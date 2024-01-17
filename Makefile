@@ -10,6 +10,7 @@ NAME	=	my_navy
 SRC	=	src/main.c	\
 		src/file.c	\
 		src/boat.c	\
+		src/signals.c	\
 
 OBJ	=	$(SRC:.c=.o)
 

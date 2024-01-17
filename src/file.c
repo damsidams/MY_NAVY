@@ -82,8 +82,5 @@ int load_file(char *path)
     if (!valid_boat(temp))
         return 84;
     return_value = read_data(temp, map);
-    for (int i = 0; map[i] != NULL; i++) {
-        printf("%s\n", map[i]);
-    }
     return return_value;
 }
