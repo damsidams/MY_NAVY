@@ -67,20 +67,19 @@ static int read_data(char **data, char **map)
     return return_value;
 }
 
-int load_file(char *path)
+int load_file(char *path, char ***map)
 {
     int lines_num = 0;
     char **temp;
     int return_value = 0;
-    char **map;
 
-    map = map_creator();
+    *map = map_creator();
     lines_num = lines_nb(path);
     temp = malloc(sizeof(char *) * (lines_num + 1));
     temp[lines_num] = NULL;
     store_data(path, temp);
     if (!valid_boat(temp))
         return 84;
-    return_value = read_data(temp, map);
+    return_value = read_data(temp, *map);
     return return_value;
 }

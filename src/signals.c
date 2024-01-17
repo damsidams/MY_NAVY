@@ -49,11 +49,12 @@ char *int_to_binary(int i)
     return res;
 }
 
-int send_pid(int pid)
+int send_pid(int pid, char **map)
 {
     int my_pid = getpid();
     char *my_pid_binary = int_to_binary(my_pid);
     int index = 0;
+    char **ennemy_map = map_creator();
 
     my_printf("my_pid: %d\n", my_pid);
     while (index != 32) {
@@ -64,15 +65,19 @@ int send_pid(int pid)
         index++;
         usleep(10);
     }
-    my_printf("\nsuccessfully connected\n");
+    my_printf("\nsuccessfully connected to enemy\n");
+    print_map(map);
+    print_ennemy_map(ennemy_map);
     while (1);
     return 0;
 }
 
-void print_pid(void)
+void receive_pid(char **map)
 {
     int bin_received = 0;
+    char **ennemy_map;
 
+    ennemy_map = map_creator();
     my_printf("my_pid: %d\n", getpid());
     my_printf("\nwaiting for enemy connection...\n", getpid());
     if (signal(SIGUSR1, receive_sig1))
@@ -82,5 +87,7 @@ void print_pid(void)
     while (my_signals->nb_bit != 32);
     my_printf("\nenemy connected\n");
     my_signals->nb_bit = 0;
+    print_map(map);
+    print_ennemy_map(ennemy_map);
     while (1);
 }
