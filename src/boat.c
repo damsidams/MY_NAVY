@@ -31,7 +31,7 @@ char **map_creator(void)
     return map;
 }
 
-static int get_x(char *str)
+int get_x(char *str)
 {
     switch (str[0]) {
     case 'A':
@@ -55,7 +55,7 @@ static int get_x(char *str)
     }
 }
 
-static int get_y(char *str)
+int get_y(char *str)
 {
     switch (str[1]) {
     case '1':

@@ -12,6 +12,8 @@ SRC	=	src/main.c	\
 		src/boat.c	\
 		src/signals.c	\
 		src/game.c	\
+		src/utilities.c	\
+		src/utilities_two.c	\
 
 OBJ	=	$(SRC:.c=.o)
 

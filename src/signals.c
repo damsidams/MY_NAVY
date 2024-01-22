@@ -12,82 +12,109 @@
 #include <unistd.h>
 #include <signal.h>
 
-void struct_init(void)
+static void connect_to_ennemy(int my_pid, int ennemy_pid, char *my_pid_binary)
 {
-    my_signals = malloc(sizeof(signals_t));
+    signal(SIGUSR1, receive_sig1);
+    signal(SIGUSR2, receive_sig2);
+    my_printf("my_pid: %d\n", my_pid);
+    send(ennemy_pid, my_pid_binary);
+    my_printf("\nsuccessfully connected to enemy\n");
+}
+
+static int receive_ennemy_pid(void)
+{
+    int ennemy_pid = 0;
+
+    while (my_signals->nb_bit != 32);
+    ennemy_pid = my_signals->value;
     my_signals->nb_bit = 0;
     my_signals->value = 0;
+    return ennemy_pid;
 }
 
-static void receive_sig1(int sig)
+static int gameloop_sender(char **map, char **ennemy_map, int ennemy_pid)
 {
-    my_signals->value = my_signals->value << 1;
-    my_signals->value = my_signals->value | 1;
-    my_signals->nb_bit = my_signals->nb_bit + 1;
-}
+    int ennemy_alive = 1;
 
-static void receive_sig2(int sig)
-{
-    my_signals->value = my_signals->value << 1;
-    my_signals->nb_bit = my_signals->nb_bit + 1;
-}
-
-char *int_to_binary(int i)
-{
-    int temp = i;
-    int index = 31;
-    char *res = malloc(sizeof(char) * 33);
-
-    res[32] = '\0';
-    while (temp > 0) {
-        res[index] = ((temp % 2) + '0');
-        temp = temp / 2;
-        index--;
+    while (alive(map) && ennemy_alive) {
+        print_map(map);
+        print_ennemy_map(ennemy_map);
+        receive_attack(map, ennemy_pid);
+        attack(ennemy_pid, map, ennemy_map);
+        send_my_status(map, ennemy_pid);
+        ennemy_alive = receive_ennemy_status();
     }
-    for (int i = 0; i <= index; i++)
-        res[i] = '0';
-    return res;
+    if (!alive(map))
+        return 0;
+    if (!ennemy_alive)
+        return 1;
+    return 0;
 }
 
 int send_pid(int pid, char **map)
 {
     int my_pid = getpid();
+    int ennemy_pid = 0;
     char *my_pid_binary = int_to_binary(my_pid);
-    int index = 0;
     char **ennemy_map = map_creator();
+    int endgame = 0;
 
-    my_printf("my_pid: %d\n", my_pid);
-    while (index != 32) {
-        if (my_pid_binary[index] == '1' && kill(pid, SIGUSR1) != 0)
-            return 84;
-        if (my_pid_binary[index] == '0' && kill(pid, SIGUSR2) != 0)
-            return 84;
-        index++;
-        usleep(10);
-    }
-    my_printf("\nsuccessfully connected to enemy\n");
-    print_map(map);
-    print_ennemy_map(ennemy_map);
-    while (1);
+    connect_to_ennemy(my_pid, pid, my_pid_binary);
+    ennemy_pid = receive_ennemy_pid();
+    endgame = gameloop_sender(map, ennemy_map, ennemy_pid);
+    if (!endgame)
+        my_printf("\nEnemy won\n");
+    if (endgame)
+        my_printf("\nI won\n");
     return 0;
+}
+
+static int game_init_receiver(void)
+{
+    int ennemy_pid = 0;
+
+    my_printf("my_pid: %d\n", getpid());
+    my_printf("\nwaiting for enemy connection...\n", getpid());
+    signal(SIGUSR1, receive_sig1);
+    signal(SIGUSR2, receive_sig2);
+    while (my_signals->nb_bit != 32);
+    my_printf("\nenemy connected\n");
+    ennemy_pid = my_signals->value;
+    my_signals->nb_bit = 0;
+    my_signals->value = 0;
+    send(ennemy_pid, int_to_binary(getpid()));
+    return ennemy_pid;
+}
+
+int receive_ennemy_status(void)
+{
+    int ennemy_flag = 0;
+
+    while (my_signals->nb_bit != 32);
+    ennemy_flag = my_signals->value;
+    my_signals->nb_bit = 0;
+    my_signals->value = 0;
+    return ennemy_flag;
 }
 
 void receive_pid(char **map)
 {
-    int bin_received = 0;
     char **ennemy_map;
+    int ennemy_pid = 0;
+    int ennemy_alive = 1;
 
     ennemy_map = map_creator();
-    my_printf("my_pid: %d\n", getpid());
-    my_printf("\nwaiting for enemy connection...\n", getpid());
-    if (signal(SIGUSR1, receive_sig1))
-        bin_received++;
-    if (signal(SIGUSR2, receive_sig2))
-        bin_received++;
-    while (my_signals->nb_bit != 32);
-    my_printf("\nenemy connected\n");
-    my_signals->nb_bit = 0;
-    print_map(map);
-    print_ennemy_map(ennemy_map);
-    while (1);
+    ennemy_pid = game_init_receiver();
+    while (alive(map) && ennemy_alive) {
+        print_map(map);
+        print_ennemy_map(ennemy_map);
+        attack(ennemy_pid, map, ennemy_map);
+        receive_attack(map, ennemy_pid);
+        ennemy_alive = receive_ennemy_status();
+        send_my_status(map, ennemy_pid);
+    }
+    if (!alive(map))
+        my_printf("\nEnemy won\n");
+    if (!ennemy_alive)
+        my_printf("\nI won\n");
 }

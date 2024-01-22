@@ -29,17 +29,16 @@ int main(int argc, char **argv)
         print_h();
         return 0;
     }
+    struct_init();
     if (argc == 2) {
         if (load_file(argv[1], &map) != 0)
             return 84;
-        struct_init();
         receive_pid(map);
         return 0;
     }
     if (argc == 3) {
         if (load_file(argv[2], &map) != 0)
             return 84;
-        struct_init();
         return send_pid(my_getnbr(argv[1]), map);
     }
     return 84;
