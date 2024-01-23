@@ -44,6 +44,8 @@ static int store_data(char *path, char **temp)
         return 84;
     line_size = getline(&buffer, &buffer_size, my_file);
     while (line_size >= 0) {
+        if (line_size != 0 && line_size != 8)
+            return 84;
         (temp)[index] = my_strdup(buffer);
         index++;
         line_size = getline(&buffer, &buffer_size, my_file);
@@ -63,6 +65,8 @@ static int read_data(char **data, char **map)
     for (int i = 0; data[i] != NULL; i++) {
         temp = my_str_to_custom_array(data[i], separators);
         return_value = get_boat(map, temp);
+        if (return_value != 0)
+            break;
     }
     return return_value;
 }
@@ -77,7 +81,8 @@ int load_file(char *path, char ***map)
     lines_num = lines_nb(path);
     temp = malloc(sizeof(char *) * (lines_num + 1));
     temp[lines_num] = NULL;
-    store_data(path, temp);
+    if (store_data(path, temp) == 84)
+        return 84;
     if (!valid_boat(temp))
         return 84;
     return_value = read_data(temp, *map);

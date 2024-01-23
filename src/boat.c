@@ -123,11 +123,11 @@ int get_boat(char **map, char **temp)
         if (i == 2)
             add_coo(coordinate, 3, 4, temp[i]);
     }
-    if ((!lenght_check(coordinate[3], coordinate[1], coordinate[0]) &&
-        !lenght_check(coordinate[4], coordinate[2], coordinate[0])))
-        return 84;
     if (!boat_check
         (coordinate[1], coordinate[2], coordinate[3], coordinate[4]))
+        return 84;
+    if ((!lenght_check(coordinate[3], coordinate[1], coordinate[0]) &&
+        !lenght_check(coordinate[4], coordinate[2], coordinate[0])))
         return 84;
     load_boat(map, coordinate);
     return 0;
