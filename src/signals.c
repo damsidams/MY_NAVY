@@ -12,6 +12,12 @@
 #include <unistd.h>
 #include <signal.h>
 
+static void print_maps(char **map, char **ennemy_map)
+{
+    print_map(map);
+    print_ennemy_map(ennemy_map);
+}
+
 static int connect_to_ennemy(int my_pid, int ennemy_pid, char *my_pid_binary)
 {
     signal(SIGUSR1, receive_sig1);
@@ -39,20 +45,20 @@ static int gameloop_sender(char **map, char **ennemy_map, int ennemy_pid)
     int ennemy_alive = 1;
 
     while (alive(map) && ennemy_alive) {
-        print_map(map);
-        print_ennemy_map(ennemy_map);
+        print_maps(map, ennemy_map);
         receive_attack(map, ennemy_pid);
         send_my_status(map, ennemy_pid);
         if (!alive(map))
             break;
-        attack(ennemy_pid, map, ennemy_map);
+        if (attack(ennemy_pid, map, ennemy_map))
+            break;
         ennemy_alive = receive_ennemy_status();
     }
     if (!alive(map))
         return 0;
     if (!ennemy_alive)
         return 1;
-    return 0;
+    return 84;
 }
 
 int send_pid(int pid, char **map)
@@ -67,12 +73,14 @@ int send_pid(int pid, char **map)
         return 84;
     ennemy_pid = receive_ennemy_pid();
     endgame = gameloop_sender(map, ennemy_map, ennemy_pid);
-    print_map(map);
-    print_ennemy_map(ennemy_map);
-    if (!endgame)
-        my_printf("\nEnemy won\n");
-    if (endgame)
-        my_printf("\nI won\n");
+    if (endgame != 84) {
+        print_map(map);
+        print_ennemy_map(ennemy_map);
+        if (!endgame)
+            my_printf("\nEnemy won\n");
+        if (endgame)
+            my_printf("\nI won\n");
+    }
     return 0;
 }
 
@@ -114,23 +122,32 @@ static void print_end(char **map, char **ennemy_map, int ennemy_alive)
         my_printf("\nI won\n");
 }
 
+static void map_pid_init(char ***ennemy_map, int *ennemy_pid)
+{
+    *ennemy_map = map_creator();
+    *ennemy_pid = game_init_receiver();
+}
+
 void receive_pid(char **map)
 {
     char **ennemy_map;
     int ennemy_pid = 0;
     int ennemy_alive = 1;
+    int flag = 0;
 
-    ennemy_map = map_creator();
-    ennemy_pid = game_init_receiver();
+    map_pid_init(&ennemy_map, &ennemy_pid);
     while (alive(map) && ennemy_alive) {
-        print_map(map);
-        print_ennemy_map(ennemy_map);
-        attack(ennemy_pid, map, ennemy_map);
+        print_maps(map, ennemy_map);
+        if (attack(ennemy_pid, map, ennemy_map)) {
+            flag = 1;
+            break;
+        }
         ennemy_alive = receive_ennemy_status();
         if (!ennemy_alive)
             break;
         receive_attack(map, ennemy_pid);
         send_my_status(map, ennemy_pid);
     }
-    print_end(map, ennemy_map, ennemy_alive);
+    if (flag != 1)
+        print_end(map, ennemy_map, ennemy_alive);
 }

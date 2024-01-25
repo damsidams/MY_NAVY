@@ -100,7 +100,7 @@ static int check_validity(__ssize_t line_size, char *buffer)
     return 1;
 }
 
-void attack(int pid, char **map, char **ennemy_map)
+int attack(int pid, char **map, char **ennemy_map)
 {
     char *buffer = NULL;
     size_t buffer_size = 0;
@@ -109,9 +109,12 @@ void attack(int pid, char **map, char **ennemy_map)
     my_printf("\nattack: ");
     while (line_size == 0) {
         line_size = getline(&buffer, &buffer_size, stdin);
+        if (line_size == -1)
+            return 1;
         line_size = check_validity(line_size, buffer);
     }
     send_attack(pid, buffer, ennemy_map);
+    return 0;
 }
 
 void receive_attack(char **map, int ennemy_pid)

@@ -22,7 +22,7 @@ int get_y(char *str);
 int get_x(char *str);
 char *int_to_binary(int i);
 void receive_attack(char **map, int ennemy_pid);
-void attack(int pid, char **map, char **ennemy_map);
+int attack(int pid, char **map, char **ennemy_map);
 void receive_sig1(int sig);
 void receive_sig2(int sig);
 char get_x_char(int i);
