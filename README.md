@@ -41,6 +41,9 @@ LENGTH:FIRST_SQUARE:LAST_SQUARE
 * Hit markers and miss markers track the battle.
 * The first player to sink all opponent's ships wins!
 
+   ![image](https://github.com/damsidams/MY_NAVY/assets/146728452/c15fb7cf-4c00-489d-9e1d-5d97e1ebe8a0)
+
+
 **Epitech Project:**
 
 This project is part of the curriculum for first-year students at [École pour l'informatique et les nouvelles technologies (Epitech)](https://www.epitech.eu/). It serves as an exercise in understanding and implementing fundamental concepts in C programming.
